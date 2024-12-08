@@ -1,6 +1,6 @@
 # Let's Hacking Into ZLT S10 4G CAT4 CPE
 
-[img]
+![\*Device Image\*](/assets/images/ZLT_S10.png)
 
 The ZLT S10 4G CAT4 CPE is a widely used, low-cost router offered by ISPs for home broadband connections in Sri Lanka (also in other countries too). This device manufacturered by Tozed Kangwei, providing customized versions to meet specific ISP's requirements.
 
@@ -8,7 +8,7 @@ Although the manufacturers advertise the ZLT S10 with an extensive list of speci
 
 In Sri Lanka, certain ISPs like Mobitel and Hutch supply ZLT S10 routers that can relatively easily unlocked or openlined by tweaking system configurations. However, routers provided by Dialog Axiata include additional layers of restrictions, going beyond standard configuration settings and making it more challenging for users to unlock or modify the device.
 
-
+[[toc]]
 
 ## Device Specifications
 
@@ -21,7 +21,7 @@ In Sri Lanka, certain ISPs like Mobitel and Hutch supply ZLT S10 routers that ca
 | RAM                      | 64Mb (?)                    |
 | Flash                    | 128Mb (DS35M1GA-IB) (NAND)  |
 | Architecture             | ARMv7                       |
-| Ports                    | USBx1; RJ45x1               |
+| Ports                    | USB x1; RJ45 x1             |
 | Buttons                  | WPS; WIFI; Reset            |
 
 **Frequency Bands**
@@ -44,9 +44,11 @@ In Sri Lanka, certain ISPs like Mobitel and Hutch supply ZLT S10 routers that ca
 | Wi-Fi protocols          | ??                                    |
 | Wi-Fi MIMO               | Tx 2; Rx 2                            |
 
-#### Band Info (LK)
+<details>
+<summary><h4>Band Info (LK)</h4></summary>
 
-**Note**: This list includes only the frequency bands actively used by Sri Lankan ISPs for GSM, HSPA/HSPA+/UMTS, and LTE technologies.
+> [!NOTE]
+> This list includes only the frequency bands actively used by Sri Lankan ISPs for GSM, HSPA/HSPA+/UMTS, and LTE technologies.
 
 ##### *GSM*
 | Band Name          | Used By                     |
@@ -74,6 +76,8 @@ In Sri Lanka, certain ISPs like Mobitel and Hutch supply ZLT S10 routers that ca
 | B40 2300MHz | Dialog  |
 | B41 2500MHz | Mobitel |
 
+</details>
+
 ---
 
 
@@ -89,44 +93,70 @@ In Sri Lanka, certain ISPs like Mobitel and Hutch supply ZLT S10 routers that ca
 ---
 
 
+## Getting Shell Access
 
+> [!NOTE]
+> There are several ways you can gain a shell access to the device. Depending on your current firmware version, some methods may or may not work as expected.
 
-## Debugging
+### Over Debug Interfaces
 
-### Hardware Debugging
+#### ADB
+> Provide high-level access to the command-line interface.
+
+* Debugging
+* Running shell commands
+* Transferring files
+* Over network or USB
+
+This interface can be accessed via USB or over the network. Direct access over the network is not available, but there are workarounds. Over USB access is possible if you modify the system configurations to support it and you have USB male-to-male cabale.
+
+In older firmware versions, there was an option in the web configuration interface to enable ADB. However, this option is no available in newer firmware versions. To access ADB in such cases, you need to manually modify the system configuration, which requires shell access or manual request crafting.
+
+Since you don't have shell access, you have to send these requests to the device after login in to enable ADB
+
+```shell
+# Enable USB Port
+url: http://[HOST]/goform/goform_get_cmd_process
+method: POST
+payload: {'isTest': 'false', 'goformId': 'TZ_SET_USB_STATUS', 'usbPortEnable': '1', 'usbDownloadEnable': '1'}
+
+# Enable ADB
+url: http://[HOST]/goform/goform_get_cmd_process
+method: POST
+payload: {'isTest': 'false', 'goformId': 'TZ_CMD_SECURE_LOGIN', 'telnetdEnable': 'n', 'adbEnable': 'y', 'dropbearEnable': 'n'}
+```
+> [!NOTE]
+> Optionally, you can enable telnet and/or dropbeer by setting the corresponding values to `'y'`, which also you can gain shell access but with password (which we may never find) ;-(.
+
 
 #### UART (Universal Asynchronous Receiver-Transmitter)
-UART is used to access a serial console for low-level interaction, such as bootloader access or kernel debugging. To access this interface, disassembling the router is required.
+> Lower-level access to the device's hardware and software (bootloader, kernel)
 
-As shown in Picture A, there are set of three pinholes. You can solder header pins, attach wires, or use clip connectors to access them. Once connected, you need a USB-to-TTL converter, such as the CP2102 (Picture B), which is an inexpensive and reliable option.
+* Serial communication
+* Simple text based in and out
+* Basic debugging and monitoring
+
+To access this interface, disassembling the router is required.
+
+As shown, there are set of three pinholes. You can solder header pins, attach wires, or use clip connectors to access them. Once connected, you need a USB-to-TTL converter, such as the CP2102 (Picture B), which is an inexpensive and reliable option.
 
 For software, you can use terminal applications like PuTTY on Windows, screen on Linux, or other similar tools to interact with the UART interface.
 
-
 #### JTAG (Joint Test Action Group)
+> Very low-level access to the device's hardware.
+
+* Debugging at hardware level
+* Access to memory and registers
+* Single stepping through code
+
 JTAG is typically used for debugging at the processor or memory level. It provides full control over hardware, including the ability to read/write registers and memory.
 
 There are pads that appear to be for JTAG (as shown in the picture). However, since I don't have JTAG debugging hardware, this interface could not be verified.
 
----
-
-### Software Debugging
-
-#### ADB
-ADB is a software debugging interface that allows access to the device’s file system, running commands, and debugging at the OS level.
-
-This interface can be accessed via USB or over the network. While direct access to ADB over the network is not  available, there are workarounds to do so. Over USB, ADB access is possible if you modify the system configurations to support it.
-
-In older firmware versions, there was an option in the web configuration interface to enable ADB. However, this option is not available in newer firmware versions. To access ADB in such cases, you need to manually modify the system configuration, which requires shell access.
-
----
-
-## Accessing Shell
-Still, there are seveeral ways you can gain a shell access to the device over several methods.
 
 ### Exploits
 
-### Hardware Debugging
+### Debug interfaces
 
 ## NAND Flash
 
