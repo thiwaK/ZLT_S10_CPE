@@ -2,11 +2,11 @@
 
 ![\*Device Image\*](/assets/images/ZLT_S10.png)
 
-The ZLT S10 4G CAT4 CPE is a widely used, low-cost router offered by ISPs for home broadband connections in Sri Lanka (also in other countries too). This device manufacturered by Tozed Kangwei, providing customized versions to meet specific ISP's requirements.
+The ZLT S10 4G CAT4 CPE is a widely used, low-cost router offered by ISPs for home broadband connections in Sri Lanka. This device manufactured by Tozed Kangwei, provides customized versions to meet specific ISPs’ requirements.
 
 Although the manufacturers advertise the ZLT S10 with an extensive list of specifications, the versions provided to end users often come with significant limitations, such as restricted frequency bands and reduced functionality.
 
-In Sri Lanka, certain ISPs like Mobitel and Hutch supply ZLT S10 routers that can relatively easily unlocked or openlined by tweaking system configurations. However, routers provided by Dialog Axiata include additional layers of restrictions, going beyond standard configuration settings and making it more challenging for users to unlock or modify the device.
+In Sri Lanka, ISPs like Mobitel and Hutch supply ZLT S10 routers that can easily unlocked or openlined by tweaking system configurations. However, routers provided by Dialog Axiata include additional layers of restrictions, going beyond standard configuration settings and making it more challenging for users to unlock or modify the device.
 
 [[toc]]
 
@@ -45,7 +45,8 @@ In Sri Lanka, certain ISPs like Mobitel and Hutch supply ZLT S10 routers that ca
 | Wi-Fi MIMO               | Tx 2; Rx 2                            |
 
 <details>
-<summary><h4>Band Info (LK)</h4></summary>
+<summary>Band Info (LK)</summary>
+
 
 > [!NOTE]
 > This list includes only the frequency bands actively used by Sri Lankan ISPs for GSM, HSPA/HSPA+/UMTS, and LTE technologies.
@@ -83,9 +84,9 @@ In Sri Lanka, certain ISPs like Mobitel and Hutch supply ZLT S10 routers that ca
 
 ### Software Specifications
 
-|  |  |
+|                   |  |
 | ----------------- | -------------- |
-|  Kernal           | Linux-3.4      |
+|  Kernel           | Linux-3.4      |
 |  2nd Stage Loader | U-Boot 2011.09 |
 |  Machine          | TSP ZX297520V3 |
 |  File System      | UBI            |
@@ -96,67 +97,67 @@ In Sri Lanka, certain ISPs like Mobitel and Hutch supply ZLT S10 routers that ca
 ## Getting Shell Access
 
 > [!NOTE]
-> There are several ways you can gain a shell access to the device. Depending on your current firmware version, some methods may or may not work as expected.
+> There are several ways to gain shell access to the device. Depending on your current firmware version, some methods may or may not work as expected.
 
 ### Over Debug Interfaces
 
-#### ADB
-> Provide high-level access to the command-line interface.
+#### ADB (Android Debug Bridge)
+> ADB provides high-level access to the device’s command-line interface, enabling you to run shell commands, transfer files, and debug the device. It can be accessed over USB or, with some workarounds, over the network.
 
-* Debugging
-* Running shell commands
-* Transferring files
-* Over network or USB
+To access ADB over USB;
+1. You must modify the system configurations to support it 
+2. You must have a USB male-to-male cable
+3. You must install ADB drivers and have the ADB executable
+4. You may need to login into the router as the admin
 
-This interface can be accessed via USB or over the network. Direct access over the network is not available, but there are workarounds. Over USB access is possible if you modify the system configurations to support it and you have USB male-to-male cabale.
-
-In older firmware versions, there was an option in the web configuration interface to enable ADB. However, this option is no available in newer firmware versions. To access ADB in such cases, you need to manually modify the system configuration, which requires shell access or manual request crafting.
-
-Since you don't have shell access, you have to send these requests to the device after login in to enable ADB
+In older firmware versions, there was an option in the web configuration interface to enable ADB. However, this option is not available. In such cases, you can send the following requests to modify the system configuration to support ADB.
 
 ```shell
-# Enable USB Port
-url: http://[HOST]/goform/goform_get_cmd_process
+# Enable USB Support
+url: http://[Gateway_IP]/goform/goform_get_cmd_process
 method: POST
 payload: {'isTest': 'false', 'goformId': 'TZ_SET_USB_STATUS', 'usbPortEnable': '1', 'usbDownloadEnable': '1'}
 
 # Enable ADB
-url: http://[HOST]/goform/goform_get_cmd_process
+url: http://[Gateway_IP]/goform/goform_get_cmd_process
 method: POST
 payload: {'isTest': 'false', 'goformId': 'TZ_CMD_SECURE_LOGIN', 'telnetdEnable': 'n', 'adbEnable': 'y', 'dropbearEnable': 'n'}
 ```
-> [!NOTE]
-> Optionally, you can enable telnet and/or dropbeer by setting the corresponding values to `'y'`, which also you can gain shell access but with password (which we may never find) ;-(.
+> [!TIP]
+> Optionally, you can enable *telnet* and/or *dropbeer* by setting the corresponding values to `'y'`, which also can gain shell access but with a password (which we may never find).
 
 
 #### UART (Universal Asynchronous Receiver-Transmitter)
-> Lower-level access to the device's hardware and software (bootloader, kernel)
 
-* Serial communication
-* Simple text based in and out
-* Basic debugging and monitoring
+![PCB](/assets/images/UART_JTAG.jpg)
 
-To access this interface, disassembling the router is required.
+> UART provides lower-level access to the device’s software (bootloader, kernel, etc.). It allows serial communication and is useful for debugging and monitoring/logging.
 
-As shown, there are set of three pinholes. You can solder header pins, attach wires, or use clip connectors to access them. Once connected, you need a USB-to-TTL converter, such as the CP2102 (Picture B), which is an inexpensive and reliable option.
+> [!CAUTION]
+> Disassembling the router is required to access this interface. Disassembling the device may void your warranty. Proceed with caution.
+
+To access UART;
+1. You must have USB-to-TTL converter/adapter
+2. You must correctly connect Rx, Tx and GND cables
+
+On the device pins are organized as
+```
+[ Rx | GND | Tx ]
+```
+
+As shown in the image (orange box), there are a set of three pinholes. You can solder header pins, attach wires, or use clip connectors to access them. 
 
 For software, you can use terminal applications like PuTTY on Windows, screen on Linux, or other similar tools to interact with the UART interface.
 
-#### JTAG (Joint Test Action Group)
-> Very low-level access to the device's hardware.
 
-* Debugging at hardware level
-* Access to memory and registers
-* Single stepping through code
+### Exploiting RCE Vulnerabilities
+Certain Remote Code Execution (RCE) vulnerabilities stem from improper parsing, handling, or sanitization of arguments passed into the GoAhead backend. Although many of these flaws have been addressed and patched in recent firmware updates, some may still be present in older versions.
 
-JTAG is typically used for debugging at the processor or memory level. It provides full control over hardware, including the ability to read/write registers and memory.
-
-There are pads that appear to be for JTAG (as shown in the picture). However, since I don't have JTAG debugging hardware, this interface could not be verified.
+> [!NOTE]
+> The effectiveness of the payloads listed below may vary depending on the firmware version in use.
 
 
-### Exploits
 
-### Debug interfaces
 
 ## NAND Flash
 
