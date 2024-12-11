@@ -8,7 +8,22 @@ Although the manufacturers advertise the ZLT S10 with an extensive list of speci
 
 In Sri Lanka, ISPs like Mobitel and Hutch supply ZLT S10 routers that can easily unlocked or openlined by tweaking system configurations. However, routers provided by Dialog Axiata include additional layers of restrictions, going beyond standard configuration settings and making it more challenging for users to unlock or modify the device.
 
-[[toc]]
+<ul>
+  <li><a href="#device-specifications">Device Specifications</a></li>
+  <li><a href="#software-specifications">Software Specifications</a></li>
+  <li><a href="#getting-shell-access">Getting Shell Access</a></li>
+    <ul>
+      <li><a href="#over-debug-interfaces">Over Debug Interfaces</a></li>
+        <ul>
+          <li><a href="#adb-android-debug-bridge">ADB (Android Debug Bridge)</a></li>
+          <li><a href="#uart-universal-asynchronous-receiver-transmitter">UART (Universal Asynchronous Receiver-Transmitter)</a></li>
+        </ul>
+      <li><a href="#exploiting-rce-vulnerabilities">Exploiting RCE Vulnerabilities</a></li>
+    </ul>
+  <li><a href="#dumping-firmware">Dumping Firmware</a></li>
+  <li><a href="#parsing-the-raw-dump">Parsing the Raw Dump</a></li>
+  
+</ul>
 
 ## Device Specifications
 
@@ -174,9 +189,16 @@ payload: {'isTest':'false', 'goformId':'URL_FILTER_ADD', 'addURLFilter':'http://
 
 ## Dumping Firmware
 
-Sometimes, gaining shell access and dumping the full firmware is not straightforward or even possible. If you try UART, you may not be able to interrupt the bootloader. In such cases, dumping the firmware directly from the flash memory is an alternative, but it can be destructive. You may need to desolder the chip, which requires expensive equipment (like a hot air station) and experience. If done incorrectly, you risk damaging the chip, melting nearby components, or creating unwanted connections, ultimately rendering the device unusable.
+Gaining shell access and dumping the full firmware is not always straightforward or even possible. For instance, if you're using UART, you may not be able to interrupt the bootloader. In such cases, dumping the firmware directly from the flash memory becomes an alternative, though it can be destructive.
 
-### NAND Flash
+To do this, you may need to desolder the chip, which requires specialized equipment (like a hot air station) and experience. If not done carefully, this process can damage the chip, melt nearby components, or create unwanted connections, ultimately rendering the device unusable.
+
+Alternatively, you might try other methods, such as clipping to the pins or soldering wires directly. However, these methods don't always work. When powering up the chip, other components may also activate, interfering with the process. In such cases, desoldering the chip remains the most reliable solution.
+
+> [!IMPORTANT]
+> Proceed only if you have the necessary knowledge and experience.
+
+### Access NAND Flash
 
 <p float="left">
 	<img src="/assets/images/Actual_DS35M1GA-IB.jpg" width="200"/>
@@ -190,11 +212,13 @@ I initially attempted the first method—soldering wires directly to the chip. W
 ![hooking](/assets/images/Hooking_DS35M1GA-IB.jpg)
 ![pinout](/assets/images/Pinout_DS35M1GA-IB.png)
 
-> [!INFO]
-> For further info about the chip, [refer this document](/assets/documents/Dosilicon-DS35M1GA-IB_C725999.pdf).
-
 To read the chip, you will need a NAND Flash chip reader, such as the CH341. Additionally, since this chip operates at 1.8V, an adapter is required to match its voltage.
 
+> [!TIP]
+> If you use *NeoProgrammer*, select W25N01GW as the Device.
 
+> [!NOTE]
+> For further info about the chip, [refer this document](/assets/documents/Dosilicon-DS35M1GA-IB_C725999.pdf).
 
+## Parsing the Raw Dump
 
