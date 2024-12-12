@@ -9,19 +9,26 @@ Although the manufacturers advertise the ZLT S10 with an extensive list of speci
 In Sri Lanka, ISPs like Mobitel and Hutch supply ZLT S10 routers that can easily unlocked or openlined by tweaking system configurations. However, routers provided by Dialog Axiata include additional layers of restrictions, going beyond standard configuration settings and making it more challenging for users to unlock or modify the device.
 
 <ul>
-  <li><a href="#device-specifications">Device Specifications</a></li>
-  <li><a href="#software-specifications">Software Specifications</a></li>
-  <li><a href="#getting-shell-access">Getting Shell Access</a></li>
-    <ul>
-      <li><a href="#over-debug-interfaces">Over Debug Interfaces</a></li>
-        <ul>
-          <li><a href="#adb-android-debug-bridge">ADB (Android Debug Bridge)</a></li>
-          <li><a href="#uart-universal-asynchronous-receiver-transmitter">UART (Universal Asynchronous Receiver-Transmitter)</a></li>
-        </ul>
-      <li><a href="#exploiting-rce-vulnerabilities">Exploiting RCE Vulnerabilities</a></li>
-    </ul>
-  <li><a href="#dumping-firmware">Dumping Firmware</a></li>
-  <li><a href="#parsing-the-raw-dump">Parsing the Raw Dump</a></li>
+	<li><a href="#device-specifications">Device Specifications</a></li>
+		<ul>
+			<li><a href="#hardware-specifications">Hardware Specifications</a></li>
+			<li><a href="#software-specifications">Software Specifications</a></li>
+		</ul>
+	<li><a href="#getting-shell-access">Getting Shell Access</a></li>
+		<ul>
+			<li><a href="#over-debug-interfaces">Over Debug Interfaces</a></li>
+				<ul>
+					<li><a href="#adb-android-debug-bridge">ADB (Android Debug Bridge)</a></li>
+					<li><a href="#uart-universal-asynchronous-receiver-transmitter">UART (Universal Asynchronous Receiver-Transmitter)</a></li>
+				</ul>
+			<li><a href="#exploiting-rce-vulnerabilities">Exploiting RCE Vulnerabilities</a></li>
+		</ul>
+	<li><a href="#openline-unlock-debrand">Openline/Unlock/Debrand</a></li>
+	<li><a href="#dumping-firmware">Dumping Firmware</a></li>
+		<ul>
+			<li><a href="#accessing-nand-flash">Accessing NAND Flash</a></li>
+		</ul>
+	<li><a href="#parsing-the-raw-dump">Parsing the Raw Dump</a></li>
   
 </ul>
 
@@ -186,6 +193,32 @@ payload: {'isTest':'false', 'goformId':'URL_FILTER_ADD', 'addURLFilter':'http://
 ```
 ---
 
+## Openline/Unlock/Debrand
+
+> [!WARNING]
+> Depending on your ISP and firmware version, the following configurations may not work as expected.
+
+> [!CAUTION]
+> Improper configuration of the device may result in state of bootloop, invalid SIM card, signal failure, or other issues.
+
+1. Edit `/etc_ro/default/default_parameter_sys`
+```shell
+tr069_app_enable=0
+tz_lock_band_state=no
+tz_lock_plmn_state=no
+tz_lock_plmn_list=
+```
+
+2. Edit `/yaffs/apply_config.conf`
+```shell
+tz_lock_plmn_state_s="no"
+tz_lock_plmn_list_s=""
+```
+
+> [!NOTE]
+> Disabling band and PLMN locks may lead to reduced signal strength or inconsistent connectivity. It’s recommended to adjust these settings based on your specific needs for optimal performance.
+
+---
 
 ## Dumping Firmware
 
@@ -198,7 +231,7 @@ Alternatively, you might try other methods, such as clipping to the pins or sold
 > [!IMPORTANT]
 > Proceed only if you have the necessary knowledge and experience.
 
-### Access NAND Flash
+### Accessing NAND Flash
 
 <p float="left">
 	<img src="/assets/images/Actual_DS35M1GA-IB.jpg" width="200"/>
