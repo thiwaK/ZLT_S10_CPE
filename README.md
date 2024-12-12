@@ -8,6 +8,7 @@ Although the manufacturers advertise the ZLT S10 with an extensive list of speci
 
 In Sri Lanka, ISPs like Mobitel and Hutch supply ZLT S10 routers that can easily unlocked or openlined by tweaking system configurations. However, routers provided by Dialog Axiata include additional layers of restrictions, going beyond standard configuration settings and making it more challenging for users to unlock or modify the device.
 
+**Contents**
 <ul>
 	<li><a href="#device-specifications">Device Specifications</a></li>
 		<ul>
