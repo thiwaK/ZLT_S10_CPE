@@ -1,78 +1,96 @@
-from construct import Struct, Array, Int8ul, Int16ul, Int32ul
 import os
+from construct import Struct, Int8ul, Array, Byte
 
-BLOCK_DATA_SIZE = 2048
-BLOCK_OOB_SIZE = 64
+PAGE_DATA_SIZE = 2048
+PAGE_OOB_SIZE = 64
 PAGES_PER_BLOCK = 64
 BLOCKS_COUNT = 1024
-PAGE_SIZE = BLOCK_DATA_SIZE + BLOCK_OOB_SIZE
+PAGE_SIZE = PAGE_DATA_SIZE + PAGE_OOB_SIZE
+BLOCK_SIZE = PAGES_PER_BLOCK * (PAGE_DATA_SIZE + PAGE_OOB_SIZE)
 
-# Define structures
-Page = Array(PAGE_SIZE, Int8ul)
-Block = Array(PAGES_PER_BLOCK, Page)
+Page = Struct(
+	"Data" / Array(PAGE_DATA_SIZE, Int8ul),
+	"OOB" / Array(PAGE_OOB_SIZE, Int8ul)
+)
+Block = Struct(
+	"Pages" / Array(PAGES_PER_BLOCK, Page)
+)
+Flash = Struct(
+	"Blocks" / Array(BLOCKS_COUNT, Block)
+)
 
 
-def is_bad_block(page, block_num, page_num):
+def is_bad_block(oob):
+	bad_block = False
 
-	data, oob = page[0:BLOCK_DATA_SIZE], page[BLOCK_DATA_SIZE:BLOCK_DATA_SIZE + BLOCK_OOB_SIZE]
-	bad_block_marker = oob[6:7]
+	# bad_block_marker = oob[6:7]
+	# if bad_block_marker != b'\xff':
+	# 	bad_block = True
 
-	if bytes(bad_block_marker).hex() == '00': # good blocks: ff
-		print(block_num, page_num, bytes(bad_block_marker).hex())
-		return None
-	return data
+	if oob[0:3] != b'\xff\xff\xff':
+		bad_block = True
 
-def parse_raw_dump(raw_data):
+	return bad_block
 
-	clean_dump = b''
+def parse_raw_dump(file):
 
+	print("Block Size:", BLOCK_SIZE)
+	
 	# Verify dump
-	num_blocks = len(raw_data) // (PAGES_PER_BLOCK * PAGE_SIZE)
-	if BLOCKS_COUNT and num_blocks != BLOCKS_COUNT:
-		print(f"[e] {num_blocks} != {BLOCKS_COUNT}")
-		exit()
+	file.seek(0, os.SEEK_END)
+	file_size = file.tell()
+	expected_size = BLOCKS_COUNT * PAGES_PER_BLOCK * (PAGE_DATA_SIZE + PAGE_OOB_SIZE)
+	if file_size != expected_size:
+		raise ValueError(f"[e] Invalid parameters. {len(raw_data)} != {expected_size}")
 
-	# Extract blocks
-	blocks = []
-	print(f"[i] Extracting Blocks")
-	for i in range(BLOCKS_COUNT):
+	# read blocks
+	file.seek(0)
+	if os.path.isfile('clean_dump.bin'):
+		os.remove('clean_dump.bin')
+	if os.path.isfile('clean_dump_oob.bin'):
+		os.remove('clean_dump_oob.bin')
+	if os.path.isfile('raw_dump_oob.bin'):
+		os.remove('raw_dump_oob.bin')
 
-		end_offset = (i + 1) * (PAGES_PER_BLOCK * PAGE_SIZE)
-		start_offset = i * (PAGES_PER_BLOCK * PAGE_SIZE)
+	with open('clean_dump.bin', 'ab') as out_data, open('clean_dump_oob.bin', 'ab') as out_oob, open('raw_dump_oob.bin', 'ab') as out_oob_raw:
+		for block_index in range(BLOCKS_COUNT):
+			block_data = file.read(BLOCK_SIZE)
+			mark_as_badblock = False
 
-		block_data = raw_data[start_offset:end_offset]
-		block = Block.parse(block_data)
-		blocks.append(block)
+			if len(block_data) < BLOCK_SIZE:
+				raise ValueError(f"[e] Block {block_index + 1} is incomplete. {len(block_data)} != {BLOCK_SIZE}")
 
-		# print(f"{start_offset}:{end_offset}")
+			for page_offset in range(0, BLOCK_SIZE, PAGE_SIZE):
+				if mark_as_badblock:
+					continue
 
-		if end_offset == file_size:
-			print("[i] Final block")
+				page = block_data[page_offset: page_offset+PAGE_SIZE]
+				if len(page) != PAGE_SIZE:
+					raise ValueError(f"[e] Invalid page size. Page: {int(page_offset/PAGE_SIZE)} Size: {len(page)}")
 
-	# Validate pages
-	valid_blocks = []
-	print(f"[i] Validating Pages")
-	for block_num, block in enumerate(blocks):
-		for page_num, page in enumerate(block):
-			valid_data = is_bad_block(page, block_num, page_num)
-			if valid_data:
-				valid_blocks.append(valid_data)
-			else:
-				print(f"Block {block_num} is bad and skipped.")
+				data, oob = page[:PAGE_DATA_SIZE], page[PAGE_DATA_SIZE:]
+				if (len(data) != PAGE_DATA_SIZE) or (len(oob) != PAGE_OOB_SIZE):
+					raise ValueError("[e] Invalid data and/or oob length.")
+				
+				out_oob_raw.write(oob)
+				if is_bad_block(oob):
+					if all(byte == 0 for byte in data):
+						mark_as_badblock = True
+						print("Badblock")
+					continue
 
-	# Write clean dump
-	with open("clean_dump.bin", "wb") as f:
-		block_structure = Struct("block_data" / Array(BLOCK_DATA_SIZE, Int8ul))
-		for block in valid_blocks:
-			block_data = block_structure.build({"block_data": block})
-			f.write(block_data)
+				out_data.write(data)
+				out_oob.write(oob)
 
 
-# Dump with spare data
+			print(f"Block {block_index + 1} Data (first 10 bytes): {block_data[:10]}...{block_data[-10:]}")
+
+
+
 raw_dump = 'raw_dump.bin'
 file_size = os.path.getsize(raw_dump)
 
+# Dump with spare data
 with open(raw_dump, 'rb') as f:
 	raw_data = f.read()
-
-parse_raw_dump(raw_data)
+	parse_raw_dump(f)

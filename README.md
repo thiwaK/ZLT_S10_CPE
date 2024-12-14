@@ -256,3 +256,13 @@ To read the chip, you will need a NAND Flash chip reader, such as the CH341. Add
 
 ## Parsing the Raw Dump
 
+## Extract
+
+https://gist.github.com/adamvr/1079762
+
+```shell
+file uImage1.bin
+
+# uImage1.bin: u-boot legacy uImage, ZX297520, Firmware/ARM, OS Kernel Image (Not compressed), 327152 bytes, Thu Sep 24 10:55:23 2020, Load Address: 0X23DF0000, Entry Point: 0X23DF0000, Header CRC: 0X11195B5, Data CRC: 0XCE15A0CE
+```
+Since both images are loaded into the memory and start execution at the starting points of the images, these images are kernel images. They are not contains any file systems.
