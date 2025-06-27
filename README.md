@@ -1,11 +1,13 @@
 <div align="center">
-	<h1 align="center">Let's Hacking Into ZLT S10 4G CAT4 CPE</h1>
+	<h1 align="center">Let's Hacking Into ZLT S10 4G CAT4 CPE 🔓</h1>
 	<i>A Comprehensive Guide to Unlocking, Dumping, and Modifying Firmware on ZX297520 based Routers</i>
 </div>
 
 ---
 
-<tt> This repository provides an in-depth technical walkthrough for modding the ZLT S10 4G LTE Router, which is powered by the ZX297520V3E SoC. Whether you're a security researcher, embedded systems enthusiast, or simply exploring how to unlock and debrand carrier-locked devices, this guide offers a comprehensive roadmap from gaining shell access to parsing raw firmware dumps. </tt>
+<tt>
+This repository provides an in-depth technical walkthrough for modding the ZLT S10 4G LTE Router, which is powered by the ZX297520V3E SoC. Whether you're a security researcher, embedded systems enthusiast, or simply exploring how to unlock and debrand carrier-locked devices, this guide offers a comprehensive roadmap from gaining shell access to parsing raw firmware dumps.
+</tt>
 
 ---
 
@@ -13,15 +15,19 @@
 
 <details>
 <summary>Story</summary>
+<br>
 The ZLT S10 4G CAT4 CPE is a widely used, low-cost router offered by ISPs for home broadband connections in Sri Lanka. This device manufactured by Tozed Kangwei, provides customized versions to meet specific ISPs’ requirements.
-
+<br>
 Although the manufacturers advertise the ZLT S10 with an extensive list of specifications, the versions provided to end users often come with significant limitations, such as restricted frequency bands and reduced functionality.
-
+<br>
 In Sri Lanka, ISPs like Mobitel and Hutch supply ZLT S10 routers that can easily unlocked or openlined by tweaking system configurations. However, routers provided by Dialog Axiata include additional layers of restrictions, going beyond standard configuration settings and making it more challenging for users to unlock or modify the device.
+<br>
 </details>
-
+<br>
+<br>
 > [!NOTE]
 > ⚠️ This content is provided strictly for educational and research purposes. Modifying firmware or hardware may void warranties or violate local regulations. Proceed at your own risk.
+<br>
 
 **Contents**
 <ul>
