@@ -5,14 +5,13 @@
 
 ---
 
-<tt>
-This repository provides an in-depth technical walkthrough for modding the ZLT S10 4G LTE Router, which is powered by the ZX297520V3E SoC. Whether you're a security researcher, embedded systems enthusiast, or simply exploring how to unlock and debrand carrier-locked devices, this guide offers a comprehensive roadmap from gaining shell access to parsing raw firmware dumps.
+<tt> This repository provides an in-depth technical walkthrough for modding the ZLT S10 4G LTE Router, which is powered by the ZX297520V3E SoC. Whether you're a security researcher, embedded systems enthusiast, or simply exploring how to unlock and debrand carrier-locked devices, this guide offers a comprehensive roadmap from gaining shell access to parsing raw firmware dumps.
 </tt>
 
 ---
 
 ![\*Device Image\*](/assets/images/ZLT_S10.png)
-
+<br>
 <details>
 <summary>Story</summary>
 <br>
@@ -24,10 +23,11 @@ In Sri Lanka, ISPs like Mobitel and Hutch supply ZLT S10 routers that can easily
 <br>
 </details>
 <br>
-<br>
+
 > [!NOTE]
 > ⚠️ This content is provided strictly for educational and research purposes. Modifying firmware or hardware may void warranties or violate local regulations. Proceed at your own risk.
-<br>
+
+<hr>
 
 **Contents**
 <ul>
