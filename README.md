@@ -21,6 +21,7 @@ In Sri Lanka, ISPs like Mobitel and Hutch supply ZLT S10 routers that can easily
 				<ul>
 					<li><a href="#adb-android-debug-bridge">ADB (Android Debug Bridge)</a></li>
 					<li><a href="#uart-universal-asynchronous-receiver-transmitter">UART (Universal Asynchronous Receiver-Transmitter)</a></li>
+					<li><a href="#u-boot-Shell-over-uart">U-Boot Shell over UART</a></li>
 				</ul>
 			<li><a href="#exploiting-rce-vulnerabilities">Exploiting RCE Vulnerabilities</a></li>
 		</ul>
@@ -30,7 +31,25 @@ In Sri Lanka, ISPs like Mobitel and Hutch supply ZLT S10 routers that can easily
 			<li><a href="#accessing-nand-flash">Accessing NAND Flash</a></li>
 		</ul>
 	<li><a href="#parsing-the-raw-dump">Parsing the Raw Dump</a></li>
-  
+		<ul>
+			<li><a href="#unpackingrepacking">Unpacking/Repacking</a></li>
+		</ul>
+	<li><a href="#firmware-configuration-update">Firmware/Configuration Update</a></li>
+		<ul>
+			<li><a href="#update-methods">Update Methods</a></li>
+				<ul>
+					<li><a href="#management-server-cwmp">Management Server (CWMP)</a></li>
+					<li><a href="#tftp-recovery-mode">TFTP (Recovery Mode)</a></li>
+					<li><a href="#web-interface">Web Interface</a></li>
+				</ul>
+			<li><a href="#firmware-bundle-contents">Firmware Bundle Contents</a></li>
+				<ul>
+					<li><a href="#required-files-in-firmware-bundles">Required Files in Firmware Bundles</a></li>
+					<li><a href="#additional-required-files-in-newer-firmware-versions">Additional Required Files in Newer Firmware Versions</a></li>
+					<li><a href="#configuration-updates">Configuration Updates</a></li>
+				</ul>
+		</ul>
+		
 </ul>
 
 ## Device Specifications
@@ -359,14 +378,14 @@ The ZLT S10 supports firmware and configuration updates through several methods.
 
 ### Update Methods
 
-1. Management Server (CWMP)
+#### Management Server (CWMP)
 
 Firmware and configuration updates are often performed automatically by the Internet Service Provider (ISP) using CWMP (CPE WAN Management Protocol). This is a hands-off, scheduled process controlled remotely and is not intended for manual use.
 
-2. TFTP (Recovery Mode)
+#### TFTP (Recovery Mode)
 U-Boot provides a low-level recovery mechanism that allows firmware flashing via TFTP. However, this mode is only accessible when there’s a critical issue such as a corrupted file system or kernel checksome fail. Even if you manage to access this interface, flashing via TFTP is challenging. It requires in-depth knowledge of low-level memory mapping and command-line tools within U-Boot.
 
-3. Web Interface
+#### Web Interface
 The device’s web interface offers a more user-friendly method for firmware or configuration updates. However, based on testing, this method is not backward compatible. Even if your device hasn’t received updates in a while, a future update pushed by the ISP might not be compatible with your current firmware. This is because ISPs frequently change:
 
 - Flashing procedures
