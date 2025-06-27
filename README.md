@@ -2,7 +2,9 @@
 	<h1 align="center">Let's Hacking Into ZLT S10 4G CAT4 CPE</h1>
 	<i>A Comprehensive Guide to Unlocking, Dumping, and Modifying Firmware on ZX297520 based Routers</i>
 </div>
+
 ---
+
 This repository provides an in-depth technical walkthrough for modding the ZLT S10 4G LTE Router, which is powered by the ZX297520V3E SoC. Whether you're a security researcher, embedded systems enthusiast, or simply exploring how to unlock and debrand carrier-locked devices, this guide offers a comprehensive roadmap from gaining shell access to parsing raw firmware dumps.
 
 ![\*Device Image\*](/assets/images/ZLT_S10.png)
