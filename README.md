@@ -349,7 +349,7 @@ To read the chip, you will need a NAND Flash chip reader, such as the CH341. Add
 
 ### Unpacking/Repacking
 
-Unpacking a SPI NAND dump requires the understanding of the physical NAND layout, including pages, blocks, out-of-band (OOB) data, and bad block management. Manually handling this process can be complex and error-prone. To simplify it, I’ve created a small utility script called `dump_parser.py`, which assists in unpacking and repacking NAND firmware dumps.
+Unpacking a SPI NAND dump requires the understanding of the physical NAND layout, including pages, blocks, out-of-band (OOB) data, and bad block management. Manually handling this process can be complex and error-prone. To simplify it, I’ve created a small utility script called ![dump_parser.py](/src/dump_parser.py), which assists in unpacking and repacking NAND firmware dumps.
 
 This script is wrote specifically for the NAND structure of the `DS35M1GA-IB` chip and the partition layout used in the `ZLT S10` device. As such, it is only compatible with this particular combination unless you adapt the script to match your own device's configuration.
 
@@ -386,11 +386,24 @@ Firmware and configuration updates are often performed automatically by the Inte
 U-Boot provides a low-level recovery mechanism that allows firmware flashing via TFTP. However, this mode is only accessible when there’s a critical issue such as a corrupted file system or kernel checksome fail. Even if you manage to access this interface, flashing via TFTP is challenging. It requires in-depth knowledge of low-level memory mapping and command-line tools within U-Boot.
 
 #### Web Interface
-The device’s web interface offers a more user-friendly method for firmware or configuration updates. However, based on testing, this method is not backward compatible. Even if your device hasn’t received updates in a while, a future update pushed by the ISP might not be compatible with your current firmware. This is because ISPs frequently change:
+The device’s web interface offers a more user-friendly method for firmware or configuration updates. However, based on testing and reverse engineering, this method has several limitations. 
 
+- It is not backward compatible.
+- Firmware compatibility is tightly controlled by the ISP.
+- Even if your device has not been updated regulerly, a future firmware pushed by the ISP may fail to install.
+
+This is primarily because ISPs frequently modify:
 - Flashing procedures
 - Firmware encryption mechanisms
-- Integrity verification methods
+- Integrity verification checks
+
+##### File Format Requirements
+Firmware updates through the web interface require specific file extensions (`.bin` or `.img`). The device treats these formats differently. (`.img` treated as a firmware bundle containing multiple components (see Firmware Bundle Contents below))
+
+##### Access Requirements
+To perform firmware updates via the web interface, you must log in as `admin` or `super admin`.
+
+Super admin access is practically impossible although you have correct credentials. Simply the device’s internal configurations not allows it. However, logging in as admin is sufficient to perform firmware and configuration updates and it is possible.
 
 > [!CAUTION]
 > Using an incompatible firmware may brick the device or lock out access to features.
