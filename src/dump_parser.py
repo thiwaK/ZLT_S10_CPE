@@ -32,7 +32,7 @@ PARTITIONS = {
     'yaffs': [0x7b80000, 0x200000]
 }   
 
-def create_clean_dump(file_obj, clean_dump_file):
+def create_clean_dump(file_obj, clean_dump_file, keep_badblocks=False):
 
     file_obj.seek(0)
     if os.path.isfile(clean_dump_file):
@@ -58,9 +58,8 @@ def create_clean_dump(file_obj, clean_dump_file):
             
             if is_bad_block(oob):
                 if all(byte == 0 for byte in data):
-                    # print("Badblock")
-                    pass
-                continue
+                    if not keep_badblocks:
+                        continue
 
             clean_dump.write(data)
 
@@ -196,11 +195,11 @@ def repack(original_dump_path, partition_dir='extracts', output_path=''):
 
     print(f"[i] image written to {out_with_oob} (OOB and bad blocks preserved)")
 
-    out_without_oob_and_bb = os.path.join(output_path, 'repacked_nand_without_oob_and_bb.bin')
+    out_without_oob = os.path.join(output_path, 'repacked_nand_without_oob.bin')
     with open(out_with_oob, 'rb') as f:
-        create_clean_dump(f, out_without_oob_and_bb)
+        create_clean_dump(f, out_without_oob, True)
 
-    print(f"[i] image written to {out_without_oob_and_bb} (OOB and bad blocks excluded)")
+    print(f"[i] image written to {out_without_oob} (OOB excluded)")
 
 def main():
 
