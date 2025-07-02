@@ -126,9 +126,6 @@ In Sri Lanka, ISPs like `SLTMobitel` and `Hutchison Telecommunications Lanka` su
 
 ### Frequency Bands
 
-> [!NOTE]
-> This list includes only the frequency bands actively used by Sri Lankan ISPs for GSM, HSPA/HSPA+/UMTS, and LTE technologies.
-
 #### GSM
 | Band Name               | Used By                               |
 | ------------------ | --------------------------- | 
@@ -355,7 +352,7 @@ tz_lock_plmn_list_s=""
 
 
 ### Method Two
-However, there are routers (as stated above) that require additional modifications to the NVRAM to get the expected result. (Most forums and groups state that those devices are impossible to debrand/openline. But that statement is a false positive.) You can find the modified NVRAM file ![here](https://mega.nz/file/eSZFxIJZ#Vf70fdWHV7z9jJTWjNl1fiSWpr_J7uXyJ0k5gIRtiN8). Replace this file with the file in `/mnt/nvrofs/`
+However, there are routers (as stated above) that require additional modifications to the NVRAM to get the expected result. (Most forums and groups state that those devices are impossible to debrand/openline. But that statement is a false positive.) You can find the modified NVRAM file [here](https://mega.nz/file/eSZFxIJZ#Vf70fdWHV7z9jJTWjNl1fiSWpr_J7uXyJ0k5gIRtiN8). Replace this file with the file in `/mnt/nvrofs/`
 
 <br>
 
@@ -425,7 +422,7 @@ To read the chip, you will need a NAND Flash chip reader, such as the CH341. Add
 > [!WARNING]
 > The script is still not able to calculate the ECC. The repacked firmware after modification may not work. Use the non-OOB repack, which can work depending on the modifications.
 
-Unpacking a SPI NAND dump requires an understanding of the physical NAND layout, including pages, blocks, out-of-band (OOB) data, and bad block management. Manually handling this process can be complex and error-prone. To simplify it, I’ve created a small utility script called ![dump_parser.py](/src/dump_parser.py), which assists in unpacking and repacking NAND firmware dumps.
+Unpacking a SPI NAND dump requires an understanding of the physical NAND layout, including pages, blocks, out-of-band (OOB) data, and bad block management. Manually handling this process can be complex and error-prone. To simplify it, I’ve created a small utility script called [dump_parser.py](/src/dump_parser.py), which assists in unpacking and repacking NAND firmware dumps.
 
 This script is written specifically for the NAND structure of the `DS35M1GA-IB` chip and the partition layout used in the `ZLT S10` device. As such, it is only compatible with this particular combination unless you adapt the script to match your own device's configuration.
 
