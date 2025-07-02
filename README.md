@@ -352,7 +352,22 @@ tz_lock_plmn_list_s=""
 
 
 ### Method Two
-However, there are routers (as stated above) that require additional modifications to the NVRAM to get the expected result. (Most forums and groups state that those devices are impossible to debrand/openline. But that statement is a false positive.) You can find the modified NVRAM file [here](https://mega.nz/file/eSZFxIJZ#Vf70fdWHV7z9jJTWjNl1fiSWpr_J7uXyJ0k5gIRtiN8). Replace this file with the file in `/mnt/nvrofs/`
+
+There are routers (as stated above) that require additional modifications to the NVRAM to get the expected result. You can find the modified NVRAM file [here](https://mega.nz/file/eSZFxIJZ#Vf70fdWHV7z9jJTWjNl1fiSWpr_J7uXyJ0k5gIRtiN8). Replace this file with the file in `/mnt/nvrofs/`. You should rest your router after applying. You may need to edit the following files after resetting.
+
+1. Edit `/etc_ro/default/default_parameter_sys`
+```shell
+tz_lock_band_list=149,0,0,0,224,1,0,0,0
+tz_display_band_list=149,0,0,0,224,1,0,0,0
+lte_amt_bands=149,0,0,0,224,1,0,0,0
+```
+
+2. Edit `/yaffs/apply_config.conf`
+```shell
+tz_lock_band_list=149,0,0,0,224,1,0,0,0
+tz_display_band_list=149,0,0,0,224,1,0,0,0
+lte_amt_bands=149,0,0,0,224,1,0,0,0
+```
 
 <br>
 
