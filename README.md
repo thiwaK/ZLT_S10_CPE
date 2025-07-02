@@ -125,6 +125,7 @@ In Sri Lanka, ISPs like `SLTMobitel` and `Hutchison Telecommunications Lanka` su
 ## Mobile Network Info (LK)
 
 ### Frequency Bands
+
 > [!NOTE]
 > This list includes only the frequency bands actively used by Sri Lankan ISPs for GSM, HSPA/HSPA+/UMTS, and LTE technologies.
 
@@ -354,12 +355,15 @@ tz_lock_plmn_list_s=""
 
 
 ### Method Two
-However, there are routers (as stated above) that require additional modifications to the NVRAM to get the expected result. (Most forums and groups state that those devices are impossible to debrand/openline. But that statement is a false positive.) You can find the modified NVRAM file ![here](/src/NVRAM.bin).
+However, there are routers (as stated above) that require additional modifications to the NVRAM to get the expected result. (Most forums and groups state that those devices are impossible to debrand/openline. But that statement is a false positive.) You can find the modified NVRAM file ![here](https://mega.nz/file/eSZFxIJZ#Vf70fdWHV7z9jJTWjNl1fiSWpr_J7uXyJ0k5gIRtiN8). Replace this file with the file in `/mnt/nvrofs/`
 
 <br>
 
+> [!WARNING]
+> Backup your current NVRAM before proceeding.
+
 > [!CAUTION]
-> The NVRAM provided here comes with the IMEI of `000000000000000`. Using this without changing the IMEI can lead to unknown issues.
+> The NVRAM provided here comes with the IMEI of `000000000000000` and MAC of `00:00:00:00:00:00`. Using this without changing the IMEI can lead to unknown issues.
 
 > [!CAUTION]
 > Your WIFI PSK and SSID will be changed after applying this file. Proceed with caution.
@@ -369,11 +373,15 @@ However, there are routers (as stated above) that require additional modificatio
 
 <br>
 
-The NVRAM provided here comes with `TDD`, `FDD`, and `WCSMA` enabled (no `GSM` and `TDS`). And with the support for LTE bands `band1`, `band3`, `band5`, `band8`, `band38`, `band39`, `band40`, `band41`, which covers all the FDD and TDD LTE bands currently used in Sri Lanka (In other words, every mobile or router SIM with LTE support should work).
-
-Although you can gain internet access via the IMEI of `000000000000000`, it is a bit risky. You should change the IMEI before use.
+The NVRAM provided here comes with `TDD`, `FDD`, and `WCSMA` enabled (no `GSM` and `TDS`). And with the support for LTE bands `band1`, `band3`, `band5`, `band8`, `band38`, `band39`, `band40`, `band41`, which covers all the FDD and TDD LTE bands currently used in Sri Lanka (In other words, every mobile or router SIM with LTE support should work). Although you can gain internet access via the IMEI of `000000000000000`, it is a bit risky. You should change the IMEI before use. Use the following table.
 
 <br>
+
+| item | offset | size |
+| --- | --- | --- |
+| IMEI | 0x0 | 0x8 |
+| MAC | 0x7C | 0x6 |
+| MAC | 0x2C0 | 0x6 |
 
 ---
 
@@ -490,10 +498,11 @@ Firmware uses the script named `updateit` in the firmware bundle to initiate the
 | re_rc | Replacement script for recovery startup routines |
 | rc | Replacement script for normal startup routines |
 | encrypt.txt | Another firmware integrity verifier |
+| updateit | Initiate the update process |
 
 #### Configuration Updates
 
-Some firmware bundles also include a configuration update file
+Some firmware bundles also include a configuration update file.
 
 | File Name | Purpose |
 | --------- | ------- |
