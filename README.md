@@ -154,6 +154,17 @@ In Sri Lanka, ISPs like `SLTMobitel` and `Hutchison Telecommunications Lanka` su
 
 ### MCC and MNC Code
 
+| Carrier | MCC | MNC |
+| --- | --- | --- |
+| Mobitel | 413 | 01 |
+| Dialog | 413 | 02 |
+| Etisalat | 413 | 03 |
+| Lanka Bell | 413 | 04 |
+| Airtel | 413 | 05 |
+| Hutch | 413 | 08; 09 |
+| Dialog BB | 413 | 11 |
+| SLT | 413 | 12 |
+
 </details>
 
 ---
@@ -344,11 +355,8 @@ tz_lock_plmn_state_s="no"
 tz_lock_plmn_list_s=""
 ```
 
-> [!NOTE]
-> Disabling band and PLMN locks may lead to reduced signal strength or inconsistent connectivity. It’s recommended to adjust these settings based on your specific needs for optimal performance.
-
 > [!TIP]
-> You can choose the matching PLMN for your network using this table.
+> You can choose the matching PLMN for your network using <a href="#mcc-and-mnc-code">this table</a>.
 
 
 ### Method Two
