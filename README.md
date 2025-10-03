@@ -83,6 +83,7 @@ In Sri Lanka, ISPs like `SLTMobitel` and `Hutchison Telecommunications Lanka` su
                     <li><a href="#additional-required-files-in-newer-firmware-versions">Additional Required Files in Newer Firmware Versions</a></li>
                     <li><a href="#configuration-updates">Configuration Updates</a></li>
                 </ul>
+            <li><a href="#firmware-bundles">Firmware Bundle Contents</a></li>
         </ul>     
 </ul>
 
@@ -527,3 +528,13 @@ Some firmware bundles also include a configuration update file.
 | File Name | Purpose |
 | --------- | ------- |
 | configupdate.zip | Contains system configuration settings |
+
+
+### Firmware Bundles
+
+#### Dialog
+
+| Config Version | Firmware Version | Link |
+| --------- | --------- | --------- |
+| 1.14 | 1.21.1 | [Download](https://mega.nz/file/qbA0kQib#s-P6njPDPn8VtFsvqr9dXReV9AI02Sgz8TwpPl6W5UE)
+ 
