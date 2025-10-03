@@ -83,7 +83,11 @@ In Sri Lanka, ISPs like `SLTMobitel` and `Hutchison Telecommunications Lanka` su
                     <li><a href="#additional-required-files-in-newer-firmware-versions">Additional Required Files in Newer Firmware Versions</a></li>
                     <li><a href="#configuration-updates">Configuration Updates</a></li>
                 </ul>
-            <li><a href="#firmware-bundles">Firmware Bundle Contents</a></li>
+            <li><a href="#firmware-bundles">Firmware Bundles</a>
+                <ul>
+                    <li><a href="#dialog">Dialog</a></li>
+                </ul>
+            </li>
         </ul>     
 </ul>
 
