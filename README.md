@@ -52,7 +52,11 @@ In Sri Lanka, ISPs like `SLTMobitel` and `Hutchison Telecommunications Lanka` su
 				<ul>
 					<li><a href="#adb-android-debug-bridge">ADB (Android Debug Bridge)</a></li>
 					<li><a href="#uart-universal-asynchronous-receiver-transmitter">UART (Universal Asynchronous Receiver-Transmitter)</a></li>
-					<li><a href="#u-boot-Shell-over-uart">U-Boot Shell over UART</a></li>
+					<li><a href="#u-boot-Shell-over-uart">U-Boot Shell over UART</a>
+                        <ul>
+                            <li><a href="#dropping-into-u-boot-shell-via-fault-injection">Dropping into U-Boot Shell via Fault Injection</a></li>
+                        </ul>
+                    </li>
 				</ul>
 			<li><a href="#exploiting-code-execution-vulnerabilities">Exploiting Code Execution Vulnerabilities</a></li>
         </ul>
@@ -60,6 +64,7 @@ In Sri Lanka, ISPs like `SLTMobitel` and `Hutchison Telecommunications Lanka` su
     	<ul>
 			<li><a href="#method-one">Method One (Config)</a></li>
             <li><a href="#method-two">Method Two (NVRAM)</a></li>
+            <li><a href="#additional-configurations">Additional Configurations</a></li>
         </ul>
     <li><a href="#dumping-firmware">Dumping Firmware</a></li>
         <ul>
@@ -77,18 +82,19 @@ In Sri Lanka, ISPs like `SLTMobitel` and `Hutchison Telecommunications Lanka` su
 	                <li><a href="#tftp-recovery-mode">TFTP (Recovery Mode)</a></li>
 	                <li><a href="#web-interface">Web Interface</a></li>
                 </ul>
-            <li><a href="#firmware-bundle-contents">Firmware Bundle Contents</a></li>
+            <li><a href="#bundle-contents">Bundle Contents</a></li>
                 <ul>
-                    <li><a href="#required-files-in-firmware-bundles">Required Files in Firmware Bundles</a></li>
-                    <li><a href="#additional-required-files-in-newer-firmware-versions">Additional Required Files in Newer Firmware Versions</a></li>
+                    <li><a href="#files">Files</a></li>
                     <li><a href="#configuration-updates">Configuration Updates</a></li>
                 </ul>
-            <li><a href="#firmware-bundles">Firmware Bundles</a>
-                <ul>
-                    <li><a href="#dialog">Dialog</a></li>
-                </ul>
-            </li>
+            <li><a href="#firmware-bundles">Firmware Bundles</a></li>
         </ul>     
+    <li><a href="#unbricking">Unbricking</a>
+        <ul>
+            <li><a href="#unbricking-prologue">Prologue</a></li>
+            <li><a href="#usb-recovery">USB Recovery</a></li>
+        </ul> 
+    </li>
 </ul>
 
 ## Device Specifications
@@ -248,6 +254,69 @@ For software, you can use terminal applications like PuTTY on Windows, screen on
 
 During the device boot process, `U-Boot` (the second stage loader) is responsible for performing file system checks and loading the Linux kernel. If there is an error, such as a checksum failure or file system corruption, U-Boot will stop execution and drop into an interactive shell (hushshell), which is only accessible via UART (serial interface).
 
+###### Dropping into U-Boot Shell via Fault Injection
+
+> [!CAUTION]
+> **Extremely high risk of permanent hardware damage**  
+> This technique can corrupt firmware, destroy the flash chip, or brick the device completely.  
+> Only attempt it if:
+> - You fully understand the risks
+> - The device is already inaccessible by normal means
+> - You are prepared to lose the device forever
+
+> [!NOTE]
+> Even when successful, the U-Boot environment usually remains accessible for about 1 minute before the watchdog or another mechanism resets the board.
+
+This fallback method can be used when the boot delay is set to zero and you cannot interrupt the boot process normally.
+
+**Prerequisites**
+- Accurate pinout of the flash chip
+- Fine-tipped wire or probe
+- Ability to power-cycle the device quickly
+
+1. Choose a Non-Power Pin for Interference
+- Avoid the chip’s VCC and VSS pins under all circumstances.
+- Target an I/O or clock pin instead (I’ve succeeded using I/O pins).
+
+2. Power On and Watch for the Checksum
+- Power on the device and wait for the kernel checksum stage (about 1 second).
+
+*Example log:*
+```log
+    ...
+    [UBOOT]NOTICE->[get_fota_update_flag]<818>fota_upflag=0
+    [UBOOT]NOTICE->[boot_reason_init]<323>poweron_type=0x0.
+    [UBOOT]NOTICE->[uboot_init_func]<482>uboot init boot_reason success
+    [UBOOT]NOTICE->[uboot_init_func]<482>uboot init wdt success
+    [UBOOT]NOTICE->[uboot_init_func]<482>uboot init bat_det success
+    [UBOOT]NOTICE->[uboot_init_func]<482>uboot init boot_prepare success
+    [UBOOT]NOTICE->[boot_entry]<409>Normal entry!
+    M0 image load success!
+    [UBOOT]NOTICE->[fs_load_zsp_image]<624>zsp image load begin...
+    [UBOOT]NOTICE->[fs_load_zsp_image]<630>zsp image load finished.
+    [UBOOT]NOTICE->[fs_load_arm_image_linux]<684>Load AP image, Size=0xcee464, to 0x21007fc0.
+    [UBOOT]NOTICE->[fs_load_arm_image_linux]<688>AP image CRC Checksum=0x117ba340.
+    [UBOOT]NOTICE->[fs_load_arm_image_linux]<690>AP image uiLoadPoint=0x21007fc0.
+    [UBOOT]NOTICE->[fs_load_arm_image_linux]<697>AP image load image finished
+    [UBOOT]NOTICE->[fs_load_arm_image_linux]<713>AP image Skip Secure Verify...
+    [UBOOT]NOTICE->[arm_image_crc_calc]<148>(cpuap)CRC Calculate start
+    [UBOOT]NOTICE->[arm_image_crc_calc]<151>(cpuap) CRC Calculate Res=0x117ba340, Size=13558884 Bytes
+    [UBOOT]NOTICE->[arm_image_crc_calc]<157>(cpuap) CRC Check PASS!    <--- START SHORTING HERE
+```
+
+- After the checksum, U-Boot attempts to load the kernel into memory.
+- If it fails to do so, it will drop into the U-Boot shell.
+- Kernel loading takes roughly 1.5 seconds, and during that window you need to short your selected pin to ground (GND).
+
+3. Hold the Short
+- Maintain the short for 2–3 seconds.
+- If the boot process freezes or gets stuck, release the short and reconnect it immediately.
+- You may repeat this until you dropped into the U-Boot shell.
+
+> [!NOTE]
+> If the boot continues normally and does not drop into the shell, do not keep shorting.
+> Power-cycle the device and try again.
+
 This shell provides low-level access to the device and can typically be used for diagnostics and recovery. The following commands are available to use.
 
 | Command |   Description |
@@ -354,7 +423,7 @@ tz_lock_plmn_state=no
 tz_lock_plmn_list=
 ```
 
-2. Edit `/yaffs/apply_config.conf`
+2. If `/yaffs` exists, Edit `/yaffs/apply_config.conf`
 ```shell
 tz_lock_plmn_state_s="no"
 tz_lock_plmn_list_s=""
@@ -375,13 +444,12 @@ tz_display_band_list=149,0,0,0,224,1,0,0,0
 lte_amt_bands=149,0,0,0,224,1,0,0,0
 ```
 
-2. Edit `/yaffs/apply_config.conf`
+2. If `/yaffs` exists, Edit `/yaffs/apply_config.conf`
 ```shell
 tz_lock_band_list=149,0,0,0,224,1,0,0,0
 tz_display_band_list=149,0,0,0,224,1,0,0,0
 lte_amt_bands=149,0,0,0,224,1,0,0,0
 ```
-
 <br>
 
 > [!WARNING]
@@ -407,6 +475,30 @@ The NVRAM provided here comes with `TDD`, `FDD`, and `WCSMA` enabled (no `GSM` a
 | IMEI | 0x0 | 0x8 |
 | MAC | 0x7C | 0x6 |
 | MAC | 0x2C0 | 0x6 |
+
+
+### Patching U-Boot
+<!--
+    TODO: 
+    
+-->
+
+### Additional Configurations
+
+#### DHCP
+For some reason, to gain and keep the network connection, you need to modify DHCP configuration of your router to match the ISP's router configuration if you are using differnt SIM other than from the ISP that router was provided.
+
+Edit `/etc_ro/default/default_parameter_sys` and/or `/yaffs/apply_config.conf`. Look for;
+
+- `lan_ipaddr`
+- `dhcpStart`
+- `dhcpEnd`
+- `dhcpDns`
+
+<!--
+    TODO: 
+    #### Cell Locking & Band Locking 
+-->
 
 ---
 
@@ -509,10 +601,10 @@ Super admin access is practically impossible, although you have the correct cred
 > [!CAUTION]
 > Using an incompatible firmware may brick the device or lock out access to features.
 
-### Firmware Bundle Contents
+### Bundle Contents
 Firmware uses the script named `updateit` in the firmware bundle to initiate the update process. After the firmware version 1.13.x, every version is encrypted by using a certificate. Which means creation of modified firmware is not possible unless you have the private certificate that is used in the encryption process.
 
-#### Files in Firmware Bundles
+#### Files
 
 | File Name | Purpose |
 | --------- | ------- |
@@ -536,9 +628,42 @@ Some firmware bundles also include a configuration update file.
 
 ### Firmware Bundles
 
-#### Dialog
+| Vendor | Config Version | Firmware Version | Link |
+| --------- | --------- | --------- | --------- |
+| Dial*g | 1.14 | 1.21.1 | [Download](https://mega.nz/file/qbA0kQib#s-P6njPDPn8VtFsvqr9dXReV9AI02Sgz8TwpPl6W5UE)
 
-| Config Version | Firmware Version | Link |
-| --------- | --------- | --------- |
-| 1.14 | 1.21.1 | [Download](https://mega.nz/file/qbA0kQib#s-P6njPDPn8VtFsvqr9dXReV9AI02Sgz8TwpPl6W5UE)
- 
+---
+
+## Unbricking
+
+### Unbricking Prologue
+
+Shit can happen when you play with these carrier-locked devices. 
+This is not a step-by-step guide; I am only giving you directions, and you will have to explore the details yourself.
+
+A completely bricked device may only show the power LED. Resetting does nothing. No other LEDs turn on. There's no sign of network activity, even if it's connected to a PC via an RJ45 cable.
+
+You will still receive UART output, but only at `115200`, not `921600`.
+This is because `921600` is set by U-Boot, and the preloader uses `115200`.
+
+In the log, you may see something like:
+
+```log
+MODE: SPI NAND
+TURN TO USB
+eS-R-D-2-
+```
+
+And that's it.
+
+**This is the state I call bricked.**
+In this situation, your NAND flash is completely corrupted; even the U-Boot partition.
+The only possible recovery methods are:
+
+1. Restoring a firmware dump via a flash programmer
+2. Full firmware flashing over the USB interface
+
+Restoring a firmware dump with a flash programmer is relatively easy, and it’s the least destructive option.
+For more information, see <a href="#dumping-firmware">Dumping Firmware</a>.
+
+Full firmware flashing over USB is harder to perform. I'll include the necessary tools and files, but you'll need to explore on your own, just as I mentioned earlier.
