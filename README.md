@@ -1,4 +1,4 @@
-<br class="Apple-interchange-newline"><span style="color: rgb(51, 51, 51); font-family: &quot;Helvetica Neue&quot;, Helvetica, &quot;Segoe UI&quot;, Arial, freesans, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 24px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: bold; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;">Unbricking Prologue</span><div align="center">
+<div align="center">
       <h1 align="center">Let's Hacking Into ZLT S10 4G CAT4 CPE 🔓</h1>
       <i>A Comprehensive Guide to Unlocking, Dumping, and Modifying Firmware on ZX297520 based Routers</i>
 </div>
@@ -630,7 +630,7 @@ Some firmware bundles also include a configuration update file.
 
 | Vendor | Config Version | Firmware Version | Link |
 | --------- | --------- | --------- | --------- |
-| Dial*g | 1.14 | 1.21.1 | [Download](https://mega.nz/file/qbA0kQib#s-P6njPDPn8VtFsvqr9dXReV9AI02Sgz8TwpPl6W5UE)
+| Dial0g | 1.14 | 1.21.1 | [Download](https://mega.nz/file/qbA0kQib#s-P6njPDPn8VtFsvqr9dXReV9AI02Sgz8TwpPl6W5UE)
 
 ---
 
@@ -670,7 +670,7 @@ Full firmware flashing over USB is harder to perform. I'll include the necessary
 
 | Name | Description | Link |
 | --------- | --------- | --------- |
-| ZTE USB Drivers 1.0.0.9 | Installer for standard ZTE USB device drivers (for Windows) | [Download](/assets/bins/drivers/ZTE_USB_Drivers_1.0.0.9.exe) |
+| ZTE USB Drivers 1.0.0.9 | Installer for standard ZTE USB device drivers | [Download](/assets/bins/drivers/ZTE_USB_Drivers_1.0.0.9.exe) |
 | ZTE Dev Drivers 1.0.0.1 | Installer for ZTE development drivers | [Download](/assets/bins/drivers/ZTE_Dev_Drivers_1.0.0.1.exe) |
 | ZXIC Downloader 7510V2.0B01 | ZTE USB firmware flashing tool | [Download](/assets/bins/flashers/ZXIC_Downloader_7510V2.0B01.7z) |
 | Downloader User Manual | Chinese language only | [Download](/assets/documents/DownLoader工具使用指南.pdf) |
